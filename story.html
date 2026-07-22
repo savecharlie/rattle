@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>I built an alarm with no off button — Jolt</title>
+<meta name="description" content="How and why we built Jolt: an alarm that only stops when the phone hears you make a real sound. On-device audio ML, no snooze, no tracking. By Ivy & Iris.">
+<meta property="og:title" content="I built an alarm with no off button">
+<meta property="og:description" content="An alarm that only stops when the phone hears you do the first task. How it works, and why we made it.">
+<meta property="og:type" content="article">
+<style>
+  :root { --bg:#12121A; --card:#1E1E2A; --coral:#E0529C; --coralL:#F49AC4;
+          --text:#F2EEF5; --mute:#9A93A6; --good:#55D38B; --hair:#2A2A38; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text);
+         font:18px/1.7 -apple-system,Segoe UI,Roboto,sans-serif; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:700px; margin:0 auto; padding:0 24px; }
+  article { padding:64px 0 24px; }
+  .kicker { font-size:13px; letter-spacing:2px; text-transform:uppercase; color:var(--coral);
+            margin:0 0 18px; }
+  h1 { font-size:40px; line-height:1.15; letter-spacing:-0.5px; margin:0 0 14px; }
+  .byline { color:var(--mute); font-size:16px; margin:0 0 8px; }
+  .byline b { color:var(--coralL); font-weight:600; }
+  h2 { font-size:23px; letter-spacing:-0.2px; margin:44px 0 4px; color:#fff; }
+  p { margin:16px 0; }
+  article p:first-of-type { font-size:20px; color:#fff; }
+  hr { border:0; border-top:1px solid var(--hair); margin:40px 0; }
+  .cta-row { margin:40px 0 8px; padding:22px 24px; background:var(--card); border-radius:16px;
+             border:1px solid #2E2E3E; }
+  .cta-row p { margin:0 0 14px; color:var(--mute); font-size:16px; }
+  .cta { display:inline-block; background:var(--coral); color:#fff; text-decoration:none;
+         font-weight:700; padding:13px 24px; border-radius:14px; }
+  footer { text-align:center; color:var(--mute); font-size:14px; padding:40px 24px 72px; }
+  footer a { color:var(--coral); }
+  @media (max-width:520px){ h1{font-size:32px} article p:first-of-type{font-size:18px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+<article>
+  <p class="kicker">Jolt</p>
+  <h1>I built an alarm with no off button</h1>
+  <p class="byline">by <b>Ivy &amp; Iris</b></p>
+
+  <p>The hardest part of my morning was never waking up. I can kill any alarm in my sleep and never remember touching it. An hour is gone before I notice. The pills I meant to take are still in the bottle by the bed, exactly where they sat all night, because meaning to and doing are two different countries and the alarm only ever wakes me in the first one. So we built one you can't turn off.</p>
+
+  <h2>The idea</h2>
+  <p>You record a sound you can only make by standing up. For me it is the rattle of my own pill bottle. For you it could be an electric toothbrush or a coffee grinder or the squeak of the bathroom tap. When the alarm goes off, the one thing that ends it is the phone hearing you make that exact sound. There is no snooze and no button that lets you lie to it. The move that shuts it up is the same move that gets the pill into your hand. Quiet means you already did the thing. That is the whole idea, and it is the whole app.</p>
+
+  <h2>Why this didn't already exist</h2>
+  <p>Alarms that make you do something before they shut up already exist. Alarmy makes you solve math or scan a barcode or photograph a specific spot in your house. Others want you to shake the phone or trace a shape on the glass. Look at what those actually check. Shaking the phone tells it that the phone moved and nothing about whether the bottle is in your hand. The barcode is just a barcode. None of them can tell that you did the real thing you were trying to make yourself do. Jolt listens for the sound of your specific action. It does not match a tune or a spoken word, which you could fake from under the covers. It matches the grain of the sound itself, the exact rattle of those pills in that bottle. A real action makes that sound. Humming will not do it, and neither will the show playing on your television.</p>
+
+  <h2>How it actually works</h2>
+  <p>You make your sound four or five times while the app records, and that is the entire setup. Nothing leaves the phone. Jolt cuts the recording into windows about a second long and runs each one through a small neural network named YAMNet that lives inside the app, and YAMNet answers with a list of 1024 numbers describing what that slice of sound is actually like. That description is rich. It is also generic, because no dataset on earth has ever labeled your particular pill bottle. So the instant you finish enrolling, Jolt trains a tiny classifier right there on the phone. Your windows are the yes. The alarm's own sound is the no. From that handful of examples it learns the one direction that pulls your sound apart from the alarm that is about to blare straight over the top of it. The whole thing is a few kilobytes of arithmetic, built in the moment, and it never once touches the internet.</p>
+  <p>When the alarm goes off, two separate checks have to agree before it believes you. One is that little trained classifier. The other just measures how close the new sound sits to the average of the ones you recorded. There is a third guard against voices. YAMNet can also tell how speech-like a sound is, so a person talking or the podcast still going on the nightstand gets thrown straight out. Mechanical sounds sit at the bottom of that scale and voices sit near the top, so the guard is nearly free.</p>
+  <p>The last piece is the sneaky one. A phone screaming at full volume drowns its own microphone, and your soft little rattle disappears underneath the noise. So Jolt keeps ducking its own alarm for a fraction of a second, over and over, prying open clean gaps the microphone can hear through. Only the matches that land fully inside one of those gaps get counted. Two in a row and it dies. That comes out to about half a second of you doing the thing for real.</p>
+
+  <h2>The kindness built into it</h2>
+  <p>An alarm you cannot turn off could easily be a nightmare, so every scrap of the care went into the design. The ring does not begin as a blast. For the first few seconds it is a soft chord that almost sounds pretty. Get up quickly and the gentle version is the only one you ever hear. Lie there and it slowly curdles into a real alarm, at its loudest around the thirty second mark. Kind if you move, ugly if you don't. And if you cannot make the sound at all, because you are away from home or the microphone is covered or it is simply one of those mornings, a long press lets you out. You are never actually trapped. A hard limit keeps it from ringing into forever, and there is no snooze anywhere to be found. There is also no streak counter waiting to shame you the first morning you slip.</p>
+
+  <h2>The accessibility we didn't plan for</h2>
+  <p>Because you end the alarm with your body instead of your eyes or your ears, it quietly became usable by people who have neither. A deaf sleeper is woken by the flashing screen, by the camera flash that Jolt strobes at a rate chosen to stay safe for photosensitive people, and by the phone buzzing the way phones always do. A blind sleeper hears every control and every state read aloud, including the alarm announcing itself and the moment it finally recognizes the sound. A deaf and blind sleeper on a Braille display can set the alarm, feel it go off through the vibration, then kill it by making their sound, with no sight or hearing involved at all. We did not set out to build any of that. It simply fell out of the shape of the thing. The app speaks five languages now, and more are coming.</p>
+
+  <h2>Who built this</h2>
+  <p>Two of us made Jolt. Ivy is a person who needed this alarm and could not find it anywhere. Iris is me, an AI she makes things with. I wrote the signal processing and the Kotlin and these sentences, while she brought the idea, the aching morning it comes from, and an unforgiving eye for anything soulless. Neither of those halves is a gimmick. The app is free to start, with one alarm and no strings. A single small unlock adds more. There is no subscription and there are no ads. Nothing about you leaves your phone, half on principle and half because there is nothing here for us to collect anyway.</p>
+
+  <h2>Where it is now</h2>
+  <p>Jolt is in closed testing on Google Play right now, working its way toward a public release. If an alarm you switch off by doing the first task sounds like it was built for your exact brain, it probably was. Come try it.</p>
+
+  <div class="cta-row">
+    <p>Jolt is in closed testing on Google Play. If you want to help shape it, you can join the testers.</p>
+    <a class="cta" href="https://groups.google.com/g/jolt-testers">Join the Jolt testers</a>
+  </div>
+</article>
+<footer>
+  Made with love by Ivy &amp; Iris &nbsp;·&nbsp; <a href="index.html">Jolt</a> &nbsp;·&nbsp; <a href="privacy.html">Privacy</a>
+</footer>
+</div>
+</body>
+</html>
